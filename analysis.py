@@ -63,6 +63,19 @@ def add_series_transistor_results(a, b):
         output |= 0b0100 # if a and b conflict (0, 1) or (1, 0), x is included
     return output
 
+def binary_to_units(binary):
+    output = []
+    if (binary & 0b0001):
+        output.append("0")
+    if (binary & 0b0010):
+        output.append("1")
+    if (binary & 0b0100):
+        output.append("x")
+    if (binary & 0b1000):
+        output.append("z")
+    return output
+
+
 
 
 '''   VDD
@@ -139,8 +152,8 @@ def nand_gate(a, b, fault):
 
 
 
-    return (bin(add_parallel_transistor_results(add_parallel_transistor_results(tran_1_result[0], tran_2_result[0]), add_series_transistor_results(tran_3_result[0], tran_4_result[0]))),
-              bin(add_parallel_transistor_results(add_parallel_transistor_results(tran_1_result[1], tran_2_result[1]), add_series_transistor_results(tran_3_result[1], tran_4_result[1]))))
+    return ((add_parallel_transistor_results(add_parallel_transistor_results(tran_1_result[0], tran_2_result[0]), add_series_transistor_results(tran_3_result[0], tran_4_result[0]))),
+              (add_parallel_transistor_results(add_parallel_transistor_results(tran_1_result[1], tran_2_result[1]), add_series_transistor_results(tran_3_result[1], tran_4_result[1]))))
 
 '''
        GND
@@ -159,24 +172,37 @@ def nand_gate(a, b, fault):
 
 
 def nor_gate(a, b, fault):
-    match (fault):
-        case 0:
-            return a | b
-        
-        case 1:
-            pass
-        
-        case 2:
-            pass
-        
-        case 3:
-            pass
-        
-        case 4:
-            pass
+    if (fault == 1):
+        #transistor 1 is slow, so it will product the same result twice
+        tran_1_result = (nmos_transistor(a[0]), nmos_transistor(a[0]))
+    else: 
+        tran_1_result = (nmos_transistor(a[0]), nmos_transistor(a[1]))
 
-        case default:
-            pass
+    #asserting the result after the second transistor
+    if (fault == 2):
+        #transistor 2 is slow, so it will product the same result twice
+        tran_2_result = (nmos_transistor(b[0]), nmos_transistor(b[0]))
+    else: 
+        tran_2_result = (nmos_transistor(b[0]), nmos_transistor(b[1]))
+    
+    #asserting the result after the third transistor
+    if (fault == 3):
+        #transistor 3 is slow, so it will product the same result twice
+        tran_3_result = (pmos_transistor(a[0]), pmos_transistor(a[0]))
+    else: 
+        tran_3_result = (pmos_transistor(a[0]), pmos_transistor(a[1]))
+
+    #asserting the result after the fourth transistor
+    if (fault == 4):
+        #transistor 4 is slow, so it will product the same result twice
+        tran_4_result = (pmos_transistor(b[0]), pmos_transistor(b[0]))
+    else: 
+        tran_4_result = (pmos_transistor(b[0]), pmos_transistor(b[1]))
+
+
+
+    return ((add_parallel_transistor_results(add_parallel_transistor_results(tran_1_result[0], tran_2_result[0]), add_series_transistor_results(tran_3_result[0], tran_4_result[0]))),
+              (add_parallel_transistor_results(add_parallel_transistor_results(tran_1_result[1], tran_2_result[1]), add_series_transistor_results(tran_3_result[1], tran_4_result[1]))))
 
 if __name__ == "__main__":
     '''print(not_gate((0b0001, 0b0010), 0))
