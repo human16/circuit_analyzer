@@ -90,8 +90,8 @@ def not_gate(a, fault):
     else: 
         tran_2_result = (nmos_transistor(a[0]), nmos_transistor(a[1]))
     
-    return (bin(add_transistor_results(tran_1_result[0], tran_2_result[0])),
-              bin(add_transistor_results(tran_1_result[1], tran_2_result[1])))
+    return (bin(add_parallel_transistor_results(tran_1_result[0], tran_2_result[0])),
+              bin(add_parallel_transistor_results(tran_1_result[1], tran_2_result[1])))
     
 
 '''
