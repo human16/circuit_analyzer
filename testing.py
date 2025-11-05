@@ -26,8 +26,8 @@ if __name__ == "__main__":
                         result = nand_gate((a_0+1, a_1+1), (b_0+1, b_1+1), fault)
                         if (result[1] & 0b1100):
                             result = "(" + str(binary_to_units(int(result[0]))) + ", " + str(binary_to_units(int(result[1]))) + ")"
-                            print(f"Nand | a_0: {YELLOW}{a_0}{RESET}, b_0:{YELLOW}{b_0}{RESET}, a_1:{YELLOW}{a_1}{RESET}, b_1:{YELLOW}{b_1}{RESET}, fault:{YELLOW}{fault}{RESET}, results: {result}")
-    print("\n\n\n\n")
+                            print(f"Nand | a_0: {YELLOW}{a_0}{RESET}, b_0:{YELLOW}{b_0}{RESET}, a_1:{YELLOW}{a_1}{RESET}, b_1:{YELLOW}{b_1}{RESET}, fault:{RED}{fault}{RESET}, results: {result}")
+    print("\n\n")
     for a_0 in range(2):
         for b_0 in range(2):
             for a_1 in range(2):
@@ -36,4 +36,4 @@ if __name__ == "__main__":
                         result = nor_gate((a_0+1, a_1+1), (b_0+1, b_1+1), fault)
                         if (result[1] & 0b1100):
                             result = "(" + str(binary_to_units(int(result[0]))) + ", " + str(binary_to_units(int(result[1]))) + ")"
-                            print(f"Nor | a_0: {YELLOW}{a_0}{RESET}, b_0:{YELLOW}{b_0}{RESET}, a_1:{YELLOW}{a_1}{RESET}, b_1:{YELLOW}{b_1}{RESET}, fault:{YELLOW}{fault}{RESET}, results: {result}")
+                            print(f"Nor | a_0: {YELLOW}{a_0}{RESET}, b_0:{YELLOW}{b_0}{RESET}, a_1:{YELLOW}{a_1}{RESET}, b_1:{YELLOW}{b_1}{RESET}, fault:{RED}{fault}{RESET}, results: {result}")

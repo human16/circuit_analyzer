@@ -40,12 +40,16 @@ def add_parallel_transistor_results(a, b):
     output = 0
     if (a & 0b1000): # if a has z, all inputs of b are included in output
         output |= b
+
     if (b & 0b1000): # if b has z, all inputs of a are included in output
         output |= a
-    output |= a & 0b0100 | a & 0b0100 # if a or b has x, x is in the output.
+
+    output |= a & 0b0100 | b & 0b0100 # if a or b has x, x is in the output.
     output |= a & b # if a and b both have the same input, it is included
+
     if ((a & 0b0010 and b & 0b0001) or (b & 0b0010 and a & 0b0001)): 
         output |= 0b0100 # if a and b conflict (0, 1) or (1, 0), x is included.
+    
     return output
 
 def add_series_transistor_results(a, b):

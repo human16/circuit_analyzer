@@ -1,9 +1,9 @@
 # Sections:
-[Functions](#functions)
+* [Functions](#functions)
 
-[Data Type](#data-type)
+* [Data Type](#data-type)
 
-[Testing](#testing)
+* [Testing](#testing)
 
 # Data Type
 
@@ -17,17 +17,17 @@ Say we want to express the set of `{z, 1, 0}`, this would make our `n = 1011`. N
 
 
 # Functions:
-[Transitor](#transistor-functions)
+* [Transitor](#transistor-functions)
 
-[Gate Logic](#gate-logic-functions)
+* [Gate Logic](#gate-logic-functions)
 
-[Gate Addition](#gate-addition-functions)
+* [Gate Addition](#gate-addition-functions)
 
 ## Transistor Functions
 
-[pmos](#pmos_transistor)
+* [pmos](#pmos_transistor)
 
-[nmos](#nmos_transistor)
+* [nmos](#nmos_transistor)
 
 These functions takes in one variable `input` which is expected to be from the set {`0`, `1`, `x`}
 
@@ -69,9 +69,9 @@ These functions will output a tuple `(initial_result, secondary_result)`
 
 ## Gate Addition Functions
 
-[series addition](#add_series_transistor_results)
+* [series addition](#add_series_transistor_results)
 
-[parallel addition](#add_parallel_transistor_results)
+* [parallel addition](#add_parallel_transistor_results)
 
 There are two ways to add the gate logic results, and for those two ways, 2 functions were created.
 
