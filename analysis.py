@@ -1,15 +1,15 @@
 ''' input -*| '''
 def pmos_transistor(input):
     match (input) :
-        #0001
+        #0001 - 0
         case 1:
             return 0b0010 # 1
         
-        #0010
+        #0010 - 1
         case 2:
             return 0b1000 # z
 
-        #0100
+        #0100 - x
         case 4:
             return 0b1010 # 1,z
         
@@ -20,15 +20,15 @@ def pmos_transistor(input):
 ''' input -| '''
 def nmos_transistor(input):
     match (input):
-        #0001
+        #0001 - 0
         case 1:
             return 0b1000 # z
         
-        #0010
+        #0010 - 1
         case 2:
             return 0b0001 # 0
 
-        #0100
+        #0100 - x
         case 4:
             return 0b1001 # 0,z
         
@@ -207,6 +207,28 @@ def nor_gate(a, b, fault):
 
     return ((add_parallel_transistor_results(add_parallel_transistor_results(tran_1_result[0], tran_2_result[0]), add_series_transistor_results(tran_3_result[0], tran_4_result[0]))),
               (add_parallel_transistor_results(add_parallel_transistor_results(tran_1_result[1], tran_2_result[1]), add_series_transistor_results(tran_3_result[1], tran_4_result[1]))))
+
+
+'''
+
+A ___________________
+        |        |   \           _____
+B ______|___|\___|AND |___|\_____\    \ 
+    |   |   |/   |___/    |/      | OR |___output
+    |   |    1     2      3   ___/____/
+    |   |                     |    6
+    |   |___________          |
+    |           |   \         |
+    |_______|\__|AND |____|\__|
+            |/  |___/     |/
+             4    5       5
+'''
+
+
+def xor(a, b, fault):
+    transistor_1 = not_gate(b, )
+
+
 
 if __name__ == "__main__":
     '''print(not_gate((0b0001, 0b0010), 0))

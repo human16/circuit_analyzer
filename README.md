@@ -9,7 +9,7 @@
 
 In this simulation, instead of only considering `1` and `0`, we need to also consider `z` and `x` (high impedence and variable value), to do this, along with considering `1` and `0`, we will use a bitwise operation on a 4 bit number `n`
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`z x 1 0`<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`z x 1 0`<br>
 `n = _ _ _ _` where `n` is our number and we can use bitwise operations to check if a value is `true` or `false`
 
 Example:
@@ -69,13 +69,17 @@ These functions will output a tuple `(initial_result, secondary_result)`
 
 ## Gate Addition Functions
 
-* [series addition](#add_series_transistor_results)
+* [Transistor Logic Addition](#add_transistor_logic)
 
-* [parallel addition](#add_parallel_transistor_results)
+* [Through Transistor Addition](#through_transistor_logic)
 
-There are two ways to add the gate logic results, and for those two ways, 2 functions were created.
+Adding logic gates is done in an unordinarry manner. The following lines describe the two methods of addition:
 
-### add_series_transistor_results()
+To combine the results of logic gates that are connected via wire, we will use 
+
+### add_transistor_logic()
+
+(This is the function addTransistorLogic in the C++ implementation)
 
 This functions will return results according to this combination table:
 
@@ -86,16 +90,20 @@ This functions will return results according to this combination table:
 |z|0|1|z|x|
 |x|x|x|x|x|
 
-### add_parallel_transistor_results()
+### through_transistor_logic()
+
+(This is the function ThroughTransistorLogic() in the C++ implementation)
 
 This functions will return results according to this combination table:
 
 | |0|1|z|x|
 |---|---|---|---|---|
-|0|0|x|z|x|
-|1|x|1|z|x|
+|0|0|und|z|x|
+|1|und|1|z|x|
 |z|z|z|z|z|
 |x|x|x|z|x|
+
+Notice, two of the results listed in the chart are undefined (und), this is because in cmos transistor logic, nmos transistors cannot be connected to 0 (GND) and pmos transistors cannot be connected to 1 (VDD). This behavior will always throw an error.
 
 
 # testing
