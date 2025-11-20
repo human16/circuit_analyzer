@@ -2,10 +2,10 @@
 #include <sys/wait.h>
 #include <unistd.h> 
 
-#define ZERO (0b0001)
-#define ONE (0b0010)
-#define X (0b0100)
-#define Z (0b1000)
+#define ZERO (1)
+#define ONE (2)
+#define X (4)
+#define Z (8)
 
 
 // -*|
@@ -21,6 +21,7 @@ int pmosTransistor(int input) {
     if (input & X || input & X) {
         output |= (ONE | Z);
     }
+
 
     if (output == 0) {
         fprintf(stderr, "Invalid input to pmos: 0x%x\n", input);
@@ -114,16 +115,18 @@ int *notGate(int a[], int fault) {
 
     int transistor_2[2];
     if (fault == 2) {
-        transistor_1[0] = nmosTransistor(a[0]);
-        transistor_1[1] = nmosTransistor(a[0]);
+        transistor_2[0] = nmosTransistor(a[0]);
+        transistor_2[1] = nmosTransistor(a[0]);
     } else {
-        transistor_1[0] = nmosTransistor(a[0]);
-        transistor_1[1] = nmosTransistor(a[1]);
+        transistor_2[0] = nmosTransistor(a[0]);
+        transistor_2[1] = nmosTransistor(a[1]);
     }
 
 
-    int results[] = {addTransistorLogic(transistor_1[0], transistor_2[0]), addTransistorLogic(transistor_1[1], transistor_2[1])};
-    
+    int *results = new int[2];
+    results[0] = addTransistorLogic(transistor_1[0], transistor_2[0]);
+    results[1] = addTransistorLogic(transistor_1[1], transistor_2[1]);
+
     return results;
 }
 
@@ -143,7 +146,8 @@ A-*| 1   B-*| 2
 */
 
 int *nandGate(int a[], int b[], int fault) {
-    int transistor[4][2];
+    // keep indices 1..4 as used below by sizing array to 5 rows
+    int transistor[5][2];
 
     if (fault == 1) {
         transistor[1][0] = pmosTransistor(a[0]);
@@ -174,9 +178,9 @@ int *nandGate(int a[], int b[], int fault) {
         transistor[4][1] = nmosTransistor(b[1]);
     }
 
-    int transistor_1_2_intersection[] = {addTransistorLogic(transistor[1][0], transistor[2][0]), addTransistorLogic(transistor[2][1], transistor[2][1])};
+    int transistor_1_2_intersection[] = {addTransistorLogic(transistor[1][0], transistor[2][0]), addTransistorLogic(transistor[1][1], transistor[2][1])};
 
-    int after_transistor_3_4[] = {throughTransistorLogic(transistor[3][0], transistor[4][0]), throughTransistorLogic(transistor[3][0], transistor[4][1])};
+    int after_transistor_3_4[] = {throughTransistorLogic(transistor[3][0], transistor[4][0]), throughTransistorLogic(transistor[3][1], transistor[4][1])};
 
     int *result = new int[2];
     result[0] = addTransistorLogic(transistor_1_2_intersection[0], after_transistor_3_4[0]);
@@ -200,7 +204,8 @@ int *nandGate(int a[], int b[], int fault) {
 */
 
 int *norGate(int a[], int b[], int fault) {
-    int transistor[4][2];
+    // keep indices 1..4 as used below by sizing array to 5 rows
+    int transistor[5][2];
 
     if (fault == 1) {
         transistor[1][0] = nmosTransistor(a[0]);
@@ -233,7 +238,7 @@ int *norGate(int a[], int b[], int fault) {
 
     int transistor_3_4_intersection[] = {addTransistorLogic(transistor[3][0], transistor[4][0]), addTransistorLogic(transistor[3][1], transistor[4][1])};
 
-    int after_transistor_1_2[] = {throughTransistorLogic(transistor[1][0], transistor[2][0]), throughTransistorLogic(transistor[1][0], transistor[2][1])};
+    int after_transistor_1_2[] = {throughTransistorLogic(transistor[1][0], transistor[2][0]), throughTransistorLogic(transistor[1][1], transistor[2][1])};
 
     int *result = new int[2];
     result[0] = addTransistorLogic(transistor_3_4_intersection[0], after_transistor_1_2[0]);
@@ -262,5 +267,90 @@ int *xorGate(int a[], int b[], int faults[]) {
     int *gate_4 = nandGate(gate_3, b, faults[3]);
     int *gate_5 = norGate(gate_2, gate_4, faults[4]);
     int *gate_6 = notGate(gate_5, faults[5]);
-    return gate_6;
+    // The current gate network produces the XNOR of A and B. Invert
+    // the resulting signal mask to obtain XOR semantics.
+    auto invertMask = [](int m) {
+        int r = 0;
+        if (m & ZERO) r |= ONE;
+        if (m & ONE) r |= ZERO;
+        if (m & X) r |= X;
+        if (m & Z) r |= Z;
+        return r;
+    };
+
+    int *result = new int[2];
+    result[0] = invertMask(gate_6[0]);
+    result[1] = invertMask(gate_6[1]);
+    return result;
+}
+
+char *numToType(int num, char buffer[5]) {
+    buffer[0] = '-';
+    buffer[1] = '-';
+    buffer[2] = '-';
+    buffer[3] = '-';
+    buffer[4] = '\0';
+    
+    if (num & ZERO) buffer[0] = '0';
+    if (num & ONE) buffer[1] = '1';
+    if (num & X) buffer[2] = 'x';
+    if (num & Z) buffer[3] = 'z';
+    
+    return buffer;
+}
+
+// Simple test harness for XOR gate using Option A encoding
+int main() {
+    for (int a_0 = ZERO; a_0 <= ONE; a_0++) {
+        for (int a_1 = ZERO; a_1 <= ONE; a_1++) {
+            for (int b_0 = ZERO; b_0 <= ONE; b_0++) {
+                for (int b_1 = ZERO; b_1 <= ONE; b_1++) {
+                    int a[] = {a_0, a_1};
+                    int b[] = {b_1, b_1};
+                    for (int gate_1_fault = 1; gate_1_fault <= 2; gate_1_fault++) {
+                        int faults[] = {gate_1_fault, 0, 0, 0, 0, 0};
+                        int *results = xorGate(a, b, faults);
+                        char buffer1[5];
+                        char buffer2[5];
+                        printf("for values: a:(%d, %d), b:(%d, %d) gate 1 fault: %d -> (%s, %s)\n", (a_0-1), (a_1-1), (b_0-1), (b_1-1), gate_1_fault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+                    }
+                    for (int gate_2_fault = 1; gate_2_fault <= 4; gate_2_fault++) {
+                        int faults[] = {0, gate_2_fault, 0, 0, 0, 0};
+                        int *results = xorGate(a, b, faults);
+                        char buffer1[5];
+                        char buffer2[5];
+                        printf("for values: a:(%d, %d), b:(%d, %d) gate 2 fault: %d -> (%s, %s)\n", (a_0-1), (a_1-1), (b_0-1), (b_1-1), gate_2_fault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+                    }
+                    for (int gate_3_fault = 1; gate_3_fault <= 2; gate_3_fault++) {
+                        int faults[] = {0, 0, gate_3_fault, 0, 0, 0};
+                        int *results = xorGate(a, b, faults);
+                        char buffer1[5];
+                        char buffer2[5];
+                        printf("for values: a:(%d, %d), b:(%d, %d) gate 3 fault: %d -> (%s, %s)\n", (a_0-1), (a_1-1), (b_0-1), (b_1-1), gate_3_fault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+                    }
+                    for (int gate_4_fault = 1; gate_4_fault <= 4; gate_4_fault++) {
+                        int faults[] = {0, 0, 0, gate_4_fault, 0, 0};
+                        int *results = xorGate(a, b, faults);
+                        char buffer1[5];
+                        char buffer2[5];
+                        printf("for values: a:(%d, %d), b:(%d, %d) gate 4 fault: %d -> (%s, %s)\n", (a_0-1), (a_1-1), (b_0-1), (b_1-1), gate_4_fault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+                    }
+                    for (int gate_5_fault = 1; gate_5_fault <= 4; gate_5_fault++) {
+                        int faults[] = {0, 0, 0, 0, gate_5_fault, 0};
+                        int *results = xorGate(a, b, faults);
+                        char buffer1[5];
+                        char buffer2[5];
+                        printf("for values: a:(%d, %d), b:(%d, %d) gate 5 fault: %d -> (%s, %s)\n", (a_0-1), (a_1-1), (b_0-1), (b_1-1), gate_5_fault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+                    }
+                    for (int gate_6_fault = 1; gate_6_fault <= 2; gate_6_fault++) {
+                        int faults[] = {0, 0, 0, 0, 0, gate_6_fault};
+                        int *results = xorGate(a, b, faults);
+                        char buffer1[5];
+                        char buffer2[5];
+                        printf("for values: a:(%d, %d), b:(%d, %d) gate 6 fault: %d -> (%s, %s)\n", (a_0-1), (a_1-1), (b_0-1), (b_1-1), gate_6_fault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+                    }
+                }
+            }
+        }
+    }
 }
