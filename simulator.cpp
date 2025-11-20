@@ -1,6 +1,4 @@
 #include <stdio.h>
-#include <iostream>
-#include <stdexcept>
 #include <sys/wait.h>
 #include <unistd.h> 
 
@@ -12,42 +10,44 @@
 
 // -*|
 int pmosTransistor(int input) {
-    switch(input) {
-        //0001
-        case 1:
-            return ONE; //1            
-        
-        //0010 
-        case 2:
-            return Z; //z
-            
-        //0100 (x)
-        case 4:
-            return ONE | Z; //1, z
-        
-        default:
-            throw std::invalid_argument("Invalid input to pmos transistor");
+    int output = 0;
+
+    if (input & ZERO) {
+        output |= ONE;
     }
+    if (input & ONE) {
+        output |= Z;
+    }
+    if (input & X || input & X) {
+        output |= (ONE | Z);
+    }
+
+    if (output == 0) {
+        fprintf(stderr, "Invalid input to pmos: 0x%x\n", input);
+    }
+
+    return output;
 }
 
 // -|
 int nmosTransistor(int input) {
-    switch(input) {
-        //0001
-        case 1:
-            return Z; //z            
-        
-        //0010 
-        case 2:
-            return ZERO; //0
-            
-        //0100 (x)
-        case 4:
-            return ZERO | Z; //0, z
-        
-        default:
-            throw std::invalid_argument("Invalid input to cmos transistor");
+    int output = 0;
+
+    if (input & ZERO) {
+        output |= Z;
     }
+    if (input & ONE) {
+        output |= ZERO;
+    }
+    if (input & X || input & Z) {
+        output |= (ZERO | Z);
+    }
+
+    if (output == 0) {
+        fprintf(stderr, "Invalid input to nmos: 0x%x\n", input);
+    }
+
+    return output;
 }
 
 int addTransistorLogic(int a, int b) {
@@ -84,7 +84,8 @@ int throughTransistorLogic(int a, int b) {
     // if a and b conflict (0, 1) or (1, 0), x is included
 
     if ((a & ONE && b & ZERO) || (b & ONE && a & ZERO)) {
-        throw std::invalid_argument("0 and 1 given to through transistor logic");
+        fprintf(stderr, "Invalid through transistor logic");
+        return 0;
     }
 
     return output;
@@ -254,6 +255,12 @@ B ______|___|\___|NAND|__________\    \
              3    4       
 */
 
-int *xor(int a[], int b[], int faults[]) {
+int *xorGate(int a[], int b[], int faults[]) {
     int *gate_1 = notGate(b, faults[0]);
+    int *gate_2 = nandGate(a, gate_1, faults[1]);
+    int *gate_3 = notGate(a, faults[2]);
+    int *gate_4 = nandGate(gate_3, b, faults[3]);
+    int *gate_5 = norGate(gate_2, gate_4, faults[4]);
+    int *gate_6 = notGate(gate_5, faults[5]);
+    return gate_6;
 }
