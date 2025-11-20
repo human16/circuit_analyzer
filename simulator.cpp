@@ -18,10 +18,13 @@ int pmosTransistor(int input) {
     if (input & ONE) {
         output |= Z;
     }
-    if (input & X || input & X) {
+    if (input & X) {
         output |= (ONE | Z);
     }
-
+    if (input & Z) {
+        // Z (hi-z) gate input: behavior is uncertain, could be 1 or Z
+        output |= (ONE | Z);
+    }
 
     if (output == 0) {
         fprintf(stderr, "Invalid input to pmos: 0x%x\n", input);
@@ -40,7 +43,11 @@ int nmosTransistor(int input) {
     if (input & ONE) {
         output |= ZERO;
     }
-    if (input & X || input & Z) {
+    if (input & X) {
+        output |= (ZERO | Z);
+    }
+    if (input & Z) {
+        // Z (hi-z) gate input: behavior is uncertain, could be 0 or Z
         output |= (ZERO | Z);
     }
 
@@ -312,42 +319,54 @@ int main() {
                         int *results = xorGate(a, b, faults);
                         char buffer1[5];
                         char buffer2[5];
-                        printf("for values: a:(%d, %d), b:(%d, %d) gate 1 fault: %d -> (%s, %s)\n", (a_0-1), (a_1-1), (b_0-1), (b_1-1), gate_1_fault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+                        if ((results[1] & X) != 0 || (results[1] & Z) != 0) {
+                            printf("for values: a:(%d, %d), b:(%d, %d) gate 1 fault: %d -> (%s, %s)\n", (a_0-1), (a_1-1), (b_0-1), (b_1-1), gate_1_fault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+                        }
                     }
                     for (int gate_2_fault = 1; gate_2_fault <= 4; gate_2_fault++) {
                         int faults[] = {0, gate_2_fault, 0, 0, 0, 0};
                         int *results = xorGate(a, b, faults);
                         char buffer1[5];
                         char buffer2[5];
-                        printf("for values: a:(%d, %d), b:(%d, %d) gate 2 fault: %d -> (%s, %s)\n", (a_0-1), (a_1-1), (b_0-1), (b_1-1), gate_2_fault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+                        if ((results[1] & X) != 0 || (results[1] & Z) != 0) {
+                            printf("for values: a:(%d, %d), b:(%d, %d) gate 2 fault: %d -> (%s, %s)\n", (a_0-1), (a_1-1), (b_0-1), (b_1-1), gate_2_fault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+                        }
                     }
                     for (int gate_3_fault = 1; gate_3_fault <= 2; gate_3_fault++) {
                         int faults[] = {0, 0, gate_3_fault, 0, 0, 0};
                         int *results = xorGate(a, b, faults);
                         char buffer1[5];
                         char buffer2[5];
-                        printf("for values: a:(%d, %d), b:(%d, %d) gate 3 fault: %d -> (%s, %s)\n", (a_0-1), (a_1-1), (b_0-1), (b_1-1), gate_3_fault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+                        if ((results[1] & X) != 0 || (results[1] & Z) != 0) {
+                            printf("for values: a:(%d, %d), b:(%d, %d) gate 3 fault: %d -> (%s, %s)\n", (a_0-1), (a_1-1), (b_0-1), (b_1-1), gate_3_fault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+                        }
                     }
                     for (int gate_4_fault = 1; gate_4_fault <= 4; gate_4_fault++) {
                         int faults[] = {0, 0, 0, gate_4_fault, 0, 0};
                         int *results = xorGate(a, b, faults);
                         char buffer1[5];
                         char buffer2[5];
-                        printf("for values: a:(%d, %d), b:(%d, %d) gate 4 fault: %d -> (%s, %s)\n", (a_0-1), (a_1-1), (b_0-1), (b_1-1), gate_4_fault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+                        if ((results[1] & X) != 0 || (results[1] & Z) != 0) {
+                            printf("for values: a:(%d, %d), b:(%d, %d) gate 4 fault: %d -> (%s, %s)\n", (a_0-1), (a_1-1), (b_0-1), (b_1-1), gate_4_fault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+                        }
                     }
                     for (int gate_5_fault = 1; gate_5_fault <= 4; gate_5_fault++) {
                         int faults[] = {0, 0, 0, 0, gate_5_fault, 0};
                         int *results = xorGate(a, b, faults);
                         char buffer1[5];
                         char buffer2[5];
-                        printf("for values: a:(%d, %d), b:(%d, %d) gate 5 fault: %d -> (%s, %s)\n", (a_0-1), (a_1-1), (b_0-1), (b_1-1), gate_5_fault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+                        if ((results[1] & X) != 0 || (results[1] & Z) != 0) {
+                            printf("for values: a:(%d, %d), b:(%d, %d) gate 5 fault: %d -> (%s, %s)\n", (a_0-1), (a_1-1), (b_0-1), (b_1-1), gate_5_fault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+                        }
                     }
                     for (int gate_6_fault = 1; gate_6_fault <= 2; gate_6_fault++) {
                         int faults[] = {0, 0, 0, 0, 0, gate_6_fault};
                         int *results = xorGate(a, b, faults);
                         char buffer1[5];
                         char buffer2[5];
-                        printf("for values: a:(%d, %d), b:(%d, %d) gate 6 fault: %d -> (%s, %s)\n", (a_0-1), (a_1-1), (b_0-1), (b_1-1), gate_6_fault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+                        if ((results[1] & X) != 0 || (results[1] & Z) != 0) {
+                            printf("for values: a:(%d, %d), b:(%d, %d) gate 6 fault: %d -> (%s, %s)\n", (a_0-1), (a_1-1), (b_0-1), (b_1-1), gate_6_fault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+                        }                    
                     }
                 }
             }
