@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <iostream>
 #include <stdexcept>
+#include <sys/wait.h>
+#include <unistd.h> 
 
 #define ZERO (0b0001)
 #define ONE (0b0010)
@@ -181,35 +183,77 @@ int *nandGate(int a[], int b[], int fault) {
     return result;
 }
 
+/*
+       GND
+        |
+     ___|____
+    |        |
+ A-| 1    B-| 2
+    |________|_____ Output
+        |
+    A-*| 3
+        |
+    B-*| 4
+        |
+       VDD
+*/
+
 int *norGate(int a[], int b[], int fault) {
     int transistor[4][2];
 
     if (fault == 1) {
-        transistor[1][0] = pmosTransistor(a[0]);
-        transistor[1][1] = pmosTransistor(a[0]);
+        transistor[1][0] = nmosTransistor(a[0]);
+        transistor[1][1] = nmosTransistor(a[0]);
     } else {
-        transistor[1][0] = pmosTransistor(a[0]);
-        transistor[1][1] = pmosTransistor(a[1]);
+        transistor[1][0] = nmosTransistor(a[0]);
+        transistor[1][1] = nmosTransistor(a[1]);
     }
     if (fault == 2) {
-        transistor[2][0] = pmosTransistor(b[0]);
-        transistor[2][1] = pmosTransistor(b[0]);
+        transistor[2][0] = nmosTransistor(b[0]);
+        transistor[2][1] = nmosTransistor(b[0]);
     } else {
-        transistor[2][0] = pmosTransistor(b[0]);
-        transistor[2][1] = pmosTransistor(b[1]);
+        transistor[2][0] = nmosTransistor(b[0]);
+        transistor[2][1] = nmosTransistor(b[1]);
     }
     if (fault == 3) {
-        transistor[3][0] = nmosTransistor(a[0]);
-        transistor[3][1] = nmosTransistor(a[0]);
+        transistor[3][0] = pmosTransistor(a[0]);
+        transistor[3][1] = pmosTransistor(a[0]);
     } else {
-        transistor[3][0] = nmosTransistor(a[0]);
-        transistor[3][1] = nmosTransistor(a[1]);
+        transistor[3][0] = pmosTransistor(a[0]);
+        transistor[3][1] = pmosTransistor(a[1]);
     }
     if (fault == 4) {
-        transistor[4][0] = nmosTransistor(b[0]);
-        transistor[4][1] = nmosTransistor(b[0]);
+        transistor[4][0] = pmosTransistor(b[0]);
+        transistor[4][1] = pmosTransistor(b[0]);
     } else {
-        transistor[4][0] = nmosTransistor(b[0]);
-        transistor[4][1] = nmosTransistor(b[1]);
+        transistor[4][0] = pmosTransistor(b[0]);
+        transistor[4][1] = pmosTransistor(b[1]);
     }
+
+    int transistor_3_4_intersection[] = {addTransistorLogic(transistor[3][0], transistor[4][0]), addTransistorLogic(transistor[3][1], transistor[4][1])};
+
+    int after_transistor_1_2[] = {throughTransistorLogic(transistor[1][0], transistor[2][0]), throughTransistorLogic(transistor[1][0], transistor[2][1])};
+
+    int *result = new int[2];
+    result[0] = addTransistorLogic(transistor_3_4_intersection[0], after_transistor_1_2[0]);
+    result[1] = addTransistorLogic(transistor_3_4_intersection[1], after_transistor_1_2[1]);
+    return result;
+}
+
+/*
+A ___________________
+        |        |   \           _____
+B ______|___|\___|NAND|__________\    \ 
+    |   |   |/   |___/            |NOR |____|\___output
+    |   |    1     2          ___/____/     |/
+    |   |                     |    5         6
+    |   |___________          |
+    |           |   \         |
+    |_______|\__|NAND|________|
+            |/  |___/     
+             3    4       
+*/
+
+int *xor(int a[], int b[], int faults[]) {
+    int *gate_1 = notGate(b, faults[0]);
 }
