@@ -1,6 +1,4 @@
 #include <stdio.h>
-#include <sys/wait.h>
-#include <unistd.h> 
 #include <string.h>
 
 #define ZERO (1)
@@ -287,16 +285,16 @@ int *norGate(int a[], int b[], int fault) {
 
 /*
 A ___________________
-        |        |   \           _____
-B ______|___|\___|NAND|__________\    \ 
-    |   |   |/   |___/            |NOR |____|\___output
-    |   |    1     2          ___/____/     |/
-    |   |                     |    5         6
-    |   |___________          |
-    |           |   \         |
-    |_______|\__|NAND|________|
-            |/  |___/     
-             3    4 
+        |        |   \             _____
+B ______|___|\___|NAND|_____|\_____\    \ 
+    |   |   |/   |___/      |/      |NOR |____|\___output
+    |   |    1     2        3   ___/____/     |/
+    |   |                       |    7         8
+    |   |___________            |
+    |           |   \           |
+    |_______|\__|NAND|____|\____|
+            |/  |___/     |/
+             4    5        6
 */
 
 int *xorGate(int a[], int b[], int faults[]) {
@@ -317,25 +315,14 @@ int *xorGate(int a[], int b[], int faults[]) {
 
     int *gate_1 = notGate(b, faults[0]);
     int *gate_2 = nandGate(a, gate_1, faults[1]);
-    int *gate_3 = notGate(a, faults[2]);
-    int *gate_4 = nandGate(gate_3, b, faults[3]);
-    int *gate_5 = norGate(gate_2, gate_4, faults[4]);
+    int *gate_3 = notGate(gate_2, faults[2]);
+    int *gate_4 = notGate(a, faults[3]);
+    int *gate_5 = nandGate(gate_3, b, faults[4]);
     int *gate_6 = notGate(gate_5, faults[5]);
-    // The current gate network produces the XNOR of A and B. Invert
-    // the resulting signal mask to obtain XOR semantics.
-    auto invertMask = [](int m) {
-        int r = 0;
-        if (m & ZERO) r |= ONE;
-        if (m & ONE) r |= ZERO;
-        if (m & X) r |= X;
-        if (m & Z) r |= Z;
-        return r;
-    };
+    int *gate_7 = norGate(gate_2, gate_4, faults[6]);
+    int *gate_8 = notGate(gate_7, faults[7]);
 
-    int *result = new int[2];
-    result[0] = invertMask(gate_6[0]);
-    result[1] = invertMask(gate_6[1]);
-    return result;
+    return gate_8;
 }
 
 char *numToType(int num, char buffer[5]) {
@@ -354,14 +341,17 @@ char *numToType(int num, char buffer[5]) {
 }
 
 // Simple test harness for XOR gate using Option A encoding
-int main() {
-    for (int a_0 = ZERO; a_0 <= ONE; a_0++) {
+//int main() {
+    
+
+
+    /*for (int a_0 = ZERO; a_0 <= ONE; a_0++) {
         for (int a_1 = ZERO; a_1 <= ONE; a_1++) {
             for (int b_0 = ZERO; b_0 <= ONE; b_0++) {
                 for (int b_1 = ZERO; b_1 <= ONE; b_1++) {
                     int no_faults[] = {0, 0, 0, 0, 0, 0};
                     int a[] = {a_0, a_1};
-                    int b[] = {b_1, b_1};
+                    int b[] = {b_0, b_1};
                     int *default_results = xorGate(a, b, no_faults);
                     for (int gate_1_fault = 1; gate_1_fault <= 2; gate_1_fault++) {
                         int faults[] = {gate_1_fault, 0, 0, 0, 0, 0};
@@ -420,5 +410,5 @@ int main() {
                 }
             }
         }
-    }
-}
+    }*/
+//}
