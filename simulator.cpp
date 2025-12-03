@@ -325,6 +325,33 @@ int *xorGate(int a[], int b[], int faults[]) {
     return gate_8;
 }
 
+
+/*
+            GND
+             |
+         ____|____
+        |         |
+  B-|>-|1   A-|>-|2
+        |         |
+        |         |
+     A-|3      B-|4
+        |_________|_____ Output
+        |         |
+ B-|>*-|1  A-|>-*|2
+        |         |
+        |         |
+    A-*|3     B-*|4
+        |_________|
+            VDD
+
+*Note that |> will have to be a NOT gate, with its own faults and transistors.
+ I will make the assumption that we're allowed to take the not of A and B once and use it in 2 places.
+
+*/
+int *bruteForceXorGate(int a[], int b[], int fault) {
+    return NULL;
+}
+
 char *numToType(int num, char buffer[5]) {
     buffer[0] = '-';
     buffer[1] = '-';

@@ -13,7 +13,7 @@ void resultAnalysis(int *results, int *default_results, int a[], int b[], int nu
 void runFault(int a[], int b[], int faultArrSize, int *faultArr, int *numFaultsArr, int *(*gate)(int[], int[], int[])) {
     for(int faultIdx = 0; faultIdx < faultArrSize; faultIdx++) {
         int *default_results = (*gate)(a, b, faultArr);
-        for(int numFault = 1; numFault < numFaultsArr[faultIdx]; numFault++) {
+        for(int numFault = 1; numFault <= numFaultsArr[faultIdx]; numFault++) {
             faultArr[faultIdx] = numFault;
             int *results = (*gate)(a, b, faultArr);
             resultAnalysis(results, default_results, a, b, numFault, faultIdx);
