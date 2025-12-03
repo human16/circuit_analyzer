@@ -273,9 +273,9 @@ int *norGate(int a[], int b[], int fault) {
         transistor[4][1] = pmosTransistor(b[1]);
     }
 
-    int transistor_3_4_intersection[] = {addTransistorLogic(transistor[3][0], transistor[4][0]), addTransistorLogic(transistor[3][1], transistor[4][1])};
+    int transistor_3_4_intersection[] = {throughTransistorLogic(transistor[3][0], transistor[4][0]), throughTransistorLogic(transistor[3][1], transistor[4][1])};
 
-    int after_transistor_1_2[] = {throughTransistorLogic(transistor[1][0], transistor[2][0]), throughTransistorLogic(transistor[1][1], transistor[2][1])};
+    int after_transistor_1_2[] = {addTransistorLogic(transistor[1][0], transistor[2][0]), addTransistorLogic(transistor[1][1], transistor[2][1])};
 
     int *result = new int[2];
     result[0] = addTransistorLogic(transistor_3_4_intersection[0], after_transistor_1_2[0]);
@@ -283,18 +283,14 @@ int *norGate(int a[], int b[], int fault) {
     return result;
 }
 
-/*
-A ___________________
-        |        |   \             _____
-B ______|___|\___|NAND|_____|\_____\    \ 
-    |   |   |/   |___/      |/      |NOR |____|\___output
-    |   |    1     2        3   ___/____/     |/
-    |   |                       |    7         8
-    |   |___________            |
-    |           |   \           |
-    |_______|\__|NAND|____|\____|
-            |/  |___/     |/
-             4    5        6
+/*                ____
+A _______________|    \2
+    |____        |NAND |____
+    |    \1    __|____/     |____
+    |NAND |___|_______      |    \4
+    |____/       |    \3    |NAND |___output
+B __|____________|NAND |____|____/
+                 |____/
 */
 
 int *xorGate(int a[], int b[], int faults[]) {
@@ -313,16 +309,26 @@ int *xorGate(int a[], int b[], int faults[]) {
         b[1] = b[0];
     }
 
+
+    int *gate_1 = nandGate(a, b, faults[0]);
+    int *gate_2 = nandGate(a, gate_1, faults[1]);
+    int *gate_3 = nandGate(gate_1, b, faults[2]);
+    int *gate_4 = nandGate(gate_2, gate_3, faults[3]);
+
+    return gate_4;
+
+    /*
     int *gate_1 = notGate(b, faults[0]);
     int *gate_2 = nandGate(a, gate_1, faults[1]);
     int *gate_3 = notGate(gate_2, faults[2]);
     int *gate_4 = notGate(a, faults[3]);
-    int *gate_5 = nandGate(gate_3, b, faults[4]);
+    int *gate_5 = nandGate(gate_2, b, faults[4]);
     int *gate_6 = notGate(gate_5, faults[5]);
-    int *gate_7 = norGate(gate_2, gate_4, faults[6]);
+    int *gate_7 = norGate(gate_2, gate_5, faults[6]);
     int *gate_8 = notGate(gate_7, faults[7]);
+    
 
-    return gate_8;
+    return gate_8;*/
 }
 
 
@@ -342,13 +348,15 @@ int *xorGate(int a[], int b[], int faults[]) {
         |         |
     A-*|3     B-*|4
         |_________|
+             |
+             |
             VDD
 
 *Note that |> will have to be a NOT gate, with its own faults and transistors.
  I will make the assumption that we're allowed to take the not of A and B once and use it in 2 places.
 
 */
-int *bruteForceXorGate(int a[], int b[], int fault) {
+int *bruteForceXorGate(int a[], int b[], int fault[]) {
     return NULL;
 }
 
