@@ -17,7 +17,9 @@ int *nandGate(int[], int[], int);
 
 int *norGate(int[], int[], int); 
 
-int *xorGate(int[], int[], int[]);
+int *nandXorGate(int[], int[], int[]);
+
+int *norXorGate(int[], int[], int[]);
 
 char *numToType(int, char[5]);
 

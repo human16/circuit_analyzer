@@ -2,21 +2,41 @@
 #include <string.h>
 #include "simulator.hpp"
 
+int vals[4] = {ZERO, ONE, X, Z};
+
+char valToChar(int val) {
+    if (val == ZERO) {
+        return '0';
+    }
+    if (val == ONE) {
+        return '1';
+    }
+    if (val == X) {
+        return 'x';
+    }
+    if (val == Z) {
+        return 'z';
+    }
+    return NULL;
+}
+
+//prints the results of the test if they are different from the expected results
 void resultAnalysis(int *results, int *default_results, int a[], int b[], int numFault, int numGate, char *name) {
     char buffer1[5];
     char buffer2[5];
-    if (memcmp(results, default_results, sizeof(int) * 2) != 0) {
-        printf("%s: for values: a:(%d, %d), b:(%d, %d) gate %d fault index: %d -> (%s, %s)\n", name, (a[0]-1), (a[1]-1), (b[0]-1), (b[1]-1), (numGate+1), numFault, numToType(results[0], buffer1), numToType(results[1], buffer2));
+    if (memcmp(results, default_results, sizeof(int) * 2) != 0 || (results[1] & (X | Z)) != 0) {
+        printf("%s: for values: a:(%c, %c), b:(%c, %c) gate %d fault index: %d -> (%s, %s)\n", name, valToChar(a[0]), valToChar(a[1]), valToChar(b[0]), valToChar(b[1]), (numGate+1), numFault, numToType(results[0], buffer1), numToType(results[1], buffer2));
     }
 }
 
-void runFault(int a[], int b[], int faultArrSize, int *faultArr, int *numFaultsArr, int *(*gate)(int[], int[], int[])) {
+//test the all the possible faults on the given gate
+void runFault(int a[], int b[], int faultArrSize, int *faultArr, int *numFaultsArr, int *(*gate)(int[], int[], int[]), char *name) {
     for(int faultIdx = 0; faultIdx < faultArrSize; faultIdx++) {
         int *default_results = (*gate)(a, b, faultArr);
         for(int numFault = 1; numFault <= numFaultsArr[faultIdx]; numFault++) {
             faultArr[faultIdx] = numFault;
             int *results = (*gate)(a, b, faultArr);
-            resultAnalysis(results, default_results, a, b, numFault, faultIdx, "NAND-XOR");
+            resultAnalysis(results, default_results, a, b, numFault, faultIdx, name);
         }
         //resetting to array of 0s
         faultArr[faultIdx] = 0;
@@ -24,30 +44,33 @@ void runFault(int a[], int b[], int faultArrSize, int *faultArr, int *numFaultsA
 }
 
 int main() {
-    int vals[2] = {ZERO, ONE};
     for (int a0 = 0; a0 < 2; a0++) {
-        for (int a1 = 0; a1 < 2; a1++) {
+        for (int a1 = 0; a1 < 4; a1++) {
+            int a[] = {vals[a0], vals[a1]};
+
             for (int b0 = 0; b0 < 2; b0++) {
-                for (int b1 = 0; b1 < 2; b1++) {
+                for (int b1 = 0; b1 < 4; b1++) {
                     //testing NOR and NAND
-                    int a[] = {vals[a0], vals[b0]};
-                    int b[] = {vals[a1], vals[b1]};
+                    int b[] = {vals[b0], vals[b1]};
                     int *defNorResult = norGate(a, b, 0);
                     int *defNandResult = nandGate(a, b, 0);
                     for (int fault = 0; fault < 1; fault++) {
                         int *norResult = norGate(a, b, fault);
                         int *nandResult = nandGate(a, b, fault);
-                        //resultAnalysis(norResult, defNorResult, a, b, fault, 0, "NOR");
-                        //resultAnalysis(nandResult, defNandResult, a, b, fault, 0, "NAND");
+                        resultAnalysis(norResult, defNorResult, a, b, fault, 0, "NOR");
+                        resultAnalysis(nandResult, defNandResult, a, b, fault, 0, "NAND");
 
                     }
 
-                    //testing xor (using same a & b)
-                    int faultArr[4] = {0};
-                    int numFaultArr[] = {4, 4, 4, 4};
-                    //int faultArr[8] = {0};
-                    //int numFaultArr[] = {2, 4, 2, 2, 4, 2, 4, 2};
-                    runFault(a, b, 4, faultArr, numFaultArr, &xorGate);
+                    //testing nand xor (using same a & b)
+                    int nandFaultArr[4] = {0};
+                    int nandNumFaultArr[5] = {4};
+                    //runFault(a, b, 4, nandFaultArr, nandNumFaultArr, &nandXorGate, "NAND-XOR");
+
+                    //testing nor xor 
+                    int norFaultArr[5] = {0};
+                    int norNumFaultArr[5] = {4};
+                    //runFault(a, b, 5, norFaultArr, norNumFaultArr, &norXorGate, "NOR-XOR");
                 }
             }
         }

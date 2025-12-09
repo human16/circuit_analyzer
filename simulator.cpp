@@ -62,7 +62,7 @@ int addTransistorLogic(int a, int b) {
     output |= a & X | b & X; // if a or b has x, x is in the output
     output |= a & b; // any overlap of a & b will be included
     
-    if ((a & ONE && b & ZERO) || (b & X && a & ZERO)) {
+    if ((a & ONE && b & ZERO) || (b & ONE && a & ZERO)) {
         output |= X; // if a and b conflict (0, 1) or (1, 0), x is included
     }
 
@@ -293,7 +293,7 @@ B __|____________|NAND |____|____/
                  |____/
 */
 
-int *xorGate(int a[], int b[], int faults[]) {
+int *nandXorGate(int a[], int b[], int faults[]) {
     if (a[0] == Z) {
         fprintf(stderr, "Initial input to not gate is Z");
         return NULL;
@@ -329,6 +329,32 @@ int *xorGate(int a[], int b[], int faults[]) {
     
 
     return gate_8;*/
+}
+
+int *norXorGate(int a[], int b[], int faults[]) {
+    if (a[0] == Z) {
+        fprintf(stderr, "Initial input to not gate is Z");
+        return NULL;
+    }
+    if (b[0] == Z) {
+        fprintf(stderr, "Initial input to not gate is Z");
+        return NULL;
+    }
+    if (a[1] == Z) {
+        a[1] = a[0];
+    }
+    if (b[1] == Z) {
+        b[1] = b[0];
+    }
+
+
+    int *gate_1 = norGate(a, b, faults[0]);
+    int *gate_2 = norGate(a, gate_1, faults[1]);
+    int *gate_3 = norGate(gate_1, b, faults[2]);
+    int *gate_4 = norGate(gate_2, gate_3, faults[3]);
+    int *gate_5 = norGate(gate_4, gate_4, faults[4]);
+
+    return gate_5;
 }
 
 
