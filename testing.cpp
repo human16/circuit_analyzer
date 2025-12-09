@@ -57,20 +57,20 @@ int main() {
                     for (int fault = 0; fault < 1; fault++) {
                         int *norResult = norGate(a, b, fault);
                         int *nandResult = nandGate(a, b, fault);
-                        resultAnalysis(norResult, defNorResult, a, b, fault, 0, "NOR");
-                        resultAnalysis(nandResult, defNandResult, a, b, fault, 0, "NAND");
+                        //resultAnalysis(norResult, defNorResult, a, b, fault, 0, "NOR");
+                        //resultAnalysis(nandResult, defNandResult, a, b, fault, 0, "NAND");
 
                     }
 
                     //testing nand xor (using same a & b)
                     int nandFaultArr[4] = {0};
                     int nandNumFaultArr[5] = {4};
-                    //runFault(a, b, 4, nandFaultArr, nandNumFaultArr, &nandXorGate, "NAND-XOR");
+                    runFault(a, b, 4, nandFaultArr, nandNumFaultArr, &nandXorGate, "NAND-XOR");
 
                     //testing nor xor 
                     int norFaultArr[5] = {0};
                     int norNumFaultArr[5] = {4};
-                    //runFault(a, b, 5, norFaultArr, norNumFaultArr, &norXorGate, "NOR-XOR");
+                    runFault(a, b, 5, norFaultArr, norNumFaultArr, &norXorGate, "NOR-XOR");
                 }
             }
         }

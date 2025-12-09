@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 #define ZERO (1)
 #define ONE (2)
@@ -101,6 +102,34 @@ A-|    |_____ Output
       GND
 */
 
+int notLogic(int a) {
+    if (a == ONE) {
+        return ZERO;
+    }
+    return ONE;
+}
+
+int nandLogic(int a, int b) {
+    if (a == ONE && b == ONE) {
+        return ZERO;
+    }
+    return ONE;
+}
+
+int norLogic(int a, int b) {
+    if (a == ONE || b == ONE) {
+        return ZERO;
+    }
+    return ONE;
+}
+
+int xorLogic(int a, int b) {
+    if (a == ZERO && b == ONE || a == ONE && b == ZERO) {
+        return ONE;
+    }
+    return ZERO;
+}
+
 int *notGate(int a[], int fault) {
     int transistor_1[2];
 
@@ -133,6 +162,8 @@ int *notGate(int a[], int fault) {
     int *results = new int[2];
     results[0] = addTransistorLogic(transistor_1[0], transistor_2[0]);
     results[1] = addTransistorLogic(transistor_1[1], transistor_2[1]);
+
+    assert(results[0] == notLogic(a[0]));
 
     return results;
 }
@@ -207,6 +238,9 @@ int *nandGate(int a[], int b[], int fault) {
     int *result = new int[2];
     result[0] = addTransistorLogic(transistor_1_2_intersection[0], after_transistor_3_4[0]);
     result[1] = addTransistorLogic(transistor_1_2_intersection[1], after_transistor_3_4[1]);
+
+    assert(result[0] == nandLogic(a[0], b[0]));
+
     return result;
 }
 
@@ -280,6 +314,9 @@ int *norGate(int a[], int b[], int fault) {
     int *result = new int[2];
     result[0] = addTransistorLogic(transistor_3_4_intersection[0], after_transistor_1_2[0]);
     result[1] = addTransistorLogic(transistor_3_4_intersection[1], after_transistor_1_2[1]);
+
+    assert(result[0] == norLogic(a[0], b[0]));
+
     return result;
 }
 
@@ -314,6 +351,8 @@ int *nandXorGate(int a[], int b[], int faults[]) {
     int *gate_2 = nandGate(a, gate_1, faults[1]);
     int *gate_3 = nandGate(gate_1, b, faults[2]);
     int *gate_4 = nandGate(gate_2, gate_3, faults[3]);
+
+    assert(gate_4[0] == xorLogic(a[0], b[0]));
 
     return gate_4;
 
@@ -353,6 +392,8 @@ int *norXorGate(int a[], int b[], int faults[]) {
     int *gate_3 = norGate(gate_1, b, faults[2]);
     int *gate_4 = norGate(gate_2, gate_3, faults[3]);
     int *gate_5 = norGate(gate_4, gate_4, faults[4]);
+
+    assert(gate_5[0] == xorLogic(a[0], b[0]));
 
     return gate_5;
 }
