@@ -1,3 +1,8 @@
+# Summary
+
+A software solution to find the best testing sequence for a given circuit to test for Silent Data Corruptions.
+
+
 # Sections:
 * [Functions](#functions)
 
